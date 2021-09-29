@@ -1,43 +1,42 @@
 from selenium import webdriver
-from selenium.webdriver.common import keys
+#from selenium.webdriver.common import keys
 import time
 from fake_useragent import UserAgent
+import pandas as pd
+import json
 
 
 user_agent = UserAgent()
 
-url = "https://www.vk.com/"
+
 
 driver = webdriver.Chrome(executable_path="C:\\Users\\Internet_Club\\Downloads\\selenium\\chromedriver"
                                           "\\chromedriver.exe")
-
+pages = 1733
 try:
-    driver.get(url=url)
-    time.sleep(5)
+    for page in range(1,2):
+        url = f"https://steamcommunity.com/market/search?appid=730#p{page}_popular_desc"
 
-    email_input = driver.find_element_by_id("index_email")
-    email_input.clear()
-    email_input.send_keys("87476821700")
-    time.sleep(2)
+        driver.get(url)
+        time.sleep(3)
 
-    password_input = driver.find_element_by_id("index_pass")
-    password_input.clear()
-    password_input.send_keys("Little2019")
-    time.sleep(2)
-    password_input.send_keys(keys.Keys.ENTER)
-    time.sleep(10)
+        items =len(driver.find_elements_by_class_name("market_listing_row"))
 
-    message = driver.find_element_by_id("l_msg").click()
-    time.sleep(5)
-    man = driver.find_element_by_class_name("nim-dialog--content").click()
-    time.sleep(4)
+        total = []
+        for item in range(items):
+            skin = driver.find_element_by_class_name("market_listing_item_name").click()
+            time.sleep(5)
+            skin_name = driver.find_element_by_id("largeiteminfo_item_name").text
+            skin_price = driver.find_element_by_id("market_commodity_forsale").text
+            skin_info = {
+                "skin-name": skin_name,
+                "skin_price": skin_price
+            }
+            total.append(skin_info)
+            print(total)
 
-    write_message = driver.find_element_by_id("im_editable0")
-    write_message.clear()
-    write_message.send_keys("все брат")
-    time.sleep(2)
-    write_message.send_keys(keys.Keys.ENTER)
-    time.sleep(5)
+    with open("Skin-info.json","a") as file:
+        json.dump(total,file,indent=4,ensure_ascii=False)
 
 except Exception as ex:
     print(ex)
